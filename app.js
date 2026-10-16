@@ -1,5 +1,5 @@
 /**
- * AURA MASTER 1000 - LUXURY HEADPHONE LANDING PAGE INTERACTION CONTROLLER
+ * AURA MASTER 1000 - LUXURY HEADPHONE LANDING PAGE INTERACTION CONTROLLER (繁體中文版)
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /* ==========================================================================
-   1. PRODUCT GALLERY & VIEW SWITCHER
+   1. PRODUCT GALLERY & VIEW SWITCHER (全視角鑑賞與選色)
    ========================================================================== */
 function initGallery() {
   const mainImage = document.getElementById('gallery-main-img');
@@ -25,28 +25,28 @@ function initGallery() {
   const viewData = {
     'hero': {
       src: 'images/hero.jpg',
-      title: '45° 典雅仰角 · 纯净极简美学',
-      desc: '专为极简主义者打磨的低反射哑光机身，无缝流线型铰链结构，告别传统耳机的机械笨重感。'
+      title: '45° 典雅仰角 · 純淨極簡美學',
+      desc: '專為極簡主義者打磨的低反射消光機身，無縫流線型鉸鏈結構，告別傳統耳機的機械笨重感。'
     },
     'flat_case': {
       src: 'images/flat_case.jpg',
-      title: '便携平折设计 · 尊荣随行硬壳盒',
-      desc: '耳罩支持 90° 平折收纳，配备轻量化磁吸旅行保护盒、编织 Type-C 快充线与 3.5mm 镀金发烧音频线。'
+      title: '便攜平折設計 · 尊榮隨行硬殼盒',
+      desc: '耳罩支援 90° 平折收納，配備輕量化磁吸旅行保護盒、編織 Type-C 快充線與 3.5mm 鍍金發燒音訊線。'
     },
     'commute': {
       src: 'images/lifestyle_commute.jpg',
-      title: '万米高空 · 差旅极静守护',
-      desc: '双芯片 48dB 极静降噪，瞬间滤除机舱引擎轰鸣与高铁轨道低频，跨洋长途飞行依然轻若无物。'
+      title: '萬米高空 · 差旅極靜守護',
+      desc: '雙晶片 48dB 極靜降噪，瞬間濾除機艙引擎轟鳴與高鐵軌道低頻，跨洋長途飛行依然輕若無物。'
     },
     'cafe': {
       src: 'images/lifestyle_cafe.jpg',
-      title: '都市咖啡馆 · 深度心流专注',
-      desc: '在键盘敲击与交谈嘈杂中一键开启静音结界，搭配智能佩戴侦测与通透交谈模式，无需摘下即可自如对话。'
+      title: '都市咖啡館 · 深度心流專注',
+      desc: '在鍵盤敲擊與交談嘈雜中一鍵開啟靜音結界，搭配智慧佩戴偵測與通透交談模式，無須摘下即可自如對話。'
     },
     'original': {
       src: 'images/earphone_original.jpg',
-      title: '工业设计真机实拍 · 铂金米灰经典款',
-      desc: '高质感天然灰调涂层，耐脏污抗指纹亲肤材质，轻量化 245g 机身带来全天无压佩戴体验。'
+      title: '工業設計真機實拍 · 鉑金米灰經典款',
+      desc: '高質感天然灰調塗層，耐髒污抗指紋親膚材質，輕量化 245g 機身帶來全天無壓佩戴體驗。'
     }
   };
 
@@ -83,13 +83,13 @@ function initGallery() {
       btn.classList.add('ring-2', 'ring-[#c2a783]', 'scale-110');
       const colorName = btn.getAttribute('data-color');
       colorLabel.textContent = colorName;
-      showToast(`已切换配色：${colorName}`);
+      showToast(`已切換配色：${colorName}`);
     });
   });
 }
 
 /* ==========================================================================
-   2. NOISE CANCELLATION SIMULATOR (WEB AUDIO API)
+   2. NOISE CANCELLATION SIMULATOR (WEB AUDIO API 聲學模擬)
    ========================================================================== */
 function initAudioSimulator() {
   const toggleButtons = document.querySelectorAll('.anc-mode-btn');
@@ -178,14 +178,14 @@ function initAudioSimulator() {
         gainNode.gain.setValueAtTime(currentMode === 'anc' ? 0.015 : 0.2, audioCtx.currentTime);
         audioPlayBtn.innerHTML = `
           <svg class="w-4 h-4 mr-2 text-[#c2a783]" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
-          暂停声音模拟
+          暫停聲音模擬
         `;
         applyAudioMode(currentMode);
       } else {
         gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
         audioPlayBtn.innerHTML = `
           <svg class="w-4 h-4 mr-2 text-[#c2a783]" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-          试听声学效果
+          試聽聲學效果
         `;
         setWaveformIntensity(0.05);
       }
@@ -203,11 +203,11 @@ function initAudioSimulator() {
 
       const mode = btn.getAttribute('data-mode');
       if (mode === 'noise') {
-        ancStatusText.textContent = '当前模式：未开启降噪。模拟万米客舱与人声杂音（低频引擎轰鸣 85dB+）';
+        ancStatusText.textContent = '目前模式：未開啟降噪。模擬萬米客艙與人聲雜音（低頻引擎轟鳴 85dB+）';
       } else if (mode === 'anc') {
-        ancStatusText.textContent = '当前模式：开启 48dB 极静降噪。双核反向声波消除 99.8% 杂音，万籁俱寂。';
+        ancStatusText.textContent = '目前模式：開啟 48dB 極靜降噪。雙核反向聲波消除 99.8% 雜音，萬籟俱寂。';
       } else {
-        ancStatusText.textContent = '当前模式：环境通透模式。外置麦克风实时补偿人声频段，无须摘耳机即可对谈。';
+        ancStatusText.textContent = '目前模式：環境通透模式。外置麥克風即時補償人聲頻段，無須摘耳機即可對談。';
       }
 
       applyAudioMode(mode);
@@ -216,7 +216,7 @@ function initAudioSimulator() {
 }
 
 /* ==========================================================================
-   3. PRICING & PAYMENT TERMS TOGGLE
+   3. PRICING & PAYMENT TERMS TOGGLE (雙版本計價與分期)
    ========================================================================== */
 function initPricingToggle() {
   const termButtons = document.querySelectorAll('.payment-term-btn');
@@ -242,22 +242,22 @@ function initPricingToggle() {
         pricePro.textContent = '1,250';
         periodStd.textContent = '/ 月 (12期0利率)';
         periodPro.textContent = '/ 月 (12期0利率)';
-        standardNote.textContent = '总额 NT$ 10,000 元，支持台新/国泰/中信等主流银行';
-        proNote.textContent = '总额 NT$ 15,000 元，支持台新/国泰/中信等主流银行';
+        standardNote.textContent = '總額 NT$ 10,000 元，支援台新 / 國泰 / 中信等主流銀行';
+        proNote.textContent = '總額 NT$ 15,000 元，支援台新 / 國泰 / 中信等主流銀行';
       } else {
         priceStd.textContent = '10,000';
         pricePro.textContent = '15,000';
         periodStd.textContent = '元';
         periodPro.textContent = '元';
-        standardNote.textContent = '原价 NT$ 12,000 · 首发早鸟直降 NT$ 2,000';
-        proNote.textContent = '原价 NT$ 18,000 · 尊荣旗舰特惠现省 NT$ 3,000';
+        standardNote.textContent = '原價 NT$ 12,000 · 首發早鳥現省 NT$ 2,000';
+        proNote.textContent = '原價 NT$ 18,000 · 尊榮旗艦特惠現省 NT$ 3,000';
       }
     });
   });
 }
 
 /* ==========================================================================
-   4. USER REVIEWS & INTERACTIVE SUBMISSION
+   4. USER REVIEWS & INTERACTIVE SUBMISSION (買家反饋系統)
    ========================================================================== */
 function initReviewsSystem() {
   const reviewsContainer = document.getElementById('reviews-list');
@@ -333,12 +333,12 @@ function initReviewsSystem() {
   if (reviewForm) {
     reviewForm.addEventListener('submit', (e) => {
       e.preventDefault();
-      const author = document.getElementById('review-author').value.trim() || '神秘发烧友';
+      const author = document.getElementById('review-author').value.trim() || '熱心發燒友';
       const version = document.getElementById('review-version').value;
       const content = document.getElementById('review-content').value.trim();
 
       if (!content) {
-        alert('请填写您的使用心得！');
+        alert('請填寫您的使用心得！');
         return;
       }
 
@@ -361,19 +361,19 @@ function initReviewsSystem() {
             <div>
               <div class="flex items-center space-x-2">
                 <span class="font-medium text-white">${author}</span>
-                <span class="text-[10px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full font-medium">已验证买家</span>
+                <span class="text-[10px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full font-medium">已驗證買家</span>
               </div>
-              <p class="text-xs text-[#9ca3af]">购买规格：${version} · 刚刚发布</p>
+              <p class="text-xs text-[#9ca3af]">購買規格：${version} · 剛剛發布</p>
             </div>
           </div>
           <div class="flex">${starsHtml}</div>
         </div>
         <p class="text-sm text-gray-300 leading-relaxed">${content}</p>
         <div class="mt-4 pt-3 border-t border-white/5 flex items-center justify-between text-xs text-[#9ca3af]">
-          <span>实名认证评价</span>
-          <button class="hover:text-[#c2a783] flex items-center space-x-1" onclick="this.innerHTML='✓ 已赞同 (1)'">
+          <span>實名認證評價</span>
+          <button class="hover:text-[#c2a783] flex items-center space-x-1" onclick="this.innerHTML='✓ 已贊同 (1)'">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"/></svg>
-            <span>觉得有帮助 (0)</span>
+            <span>覺得有幫助 (0)</span>
           </button>
         </div>
       `;
@@ -381,13 +381,13 @@ function initReviewsSystem() {
       reviewsContainer.insertBefore(newCard, reviewsContainer.firstChild);
       reviewModal.classList.remove('active');
       reviewForm.reset();
-      showToast('🎉 感谢您的真实评价！已成功展示在网站首屏。');
+      showToast('🎉 感謝您的真實評價！已成功展示在網站首頁。');
     });
   }
 }
 
 /* ==========================================================================
-   5. INTERACTIVE CHECKOUT & 3D CREDIT CARD FLOW
+   5. INTERACTIVE CHECKOUT & 3D CREDIT CARD FLOW (3D 信用卡訂購流程)
    ========================================================================== */
 function initCheckoutFlow() {
   const checkoutModal = document.getElementById('checkout-modal');
@@ -474,13 +474,13 @@ function initCheckoutFlow() {
       const code = promoInput.value.trim().toUpperCase();
       if (code === 'SOUND1000' || code === 'AURA2026') {
         discountAmount = 1000;
-        promoFeedback.innerHTML = `<span class="text-emerald-400">✓ 折扣码【${code}】已生效，现折 NT$ 1,000 元！</span>`;
+        promoFeedback.innerHTML = `<span class="text-emerald-400">✓ 折扣碼【${code}】已生效，現折 NT$ 1,000 元！</span>`;
       } else if (code === 'VIP88') {
         discountAmount = 1500;
-        promoFeedback.innerHTML = `<span class="text-emerald-400">✓ 尊荣专属【VIP88】生效，现折 NT$ 1,500 元！</span>`;
+        promoFeedback.innerHTML = `<span class="text-emerald-400">✓ 尊榮專屬【VIP88】生效，現折 NT$ 1,500 元！</span>`;
       } else {
         discountAmount = 0;
-        promoFeedback.innerHTML = `<span class="text-red-400">✕ 折扣码无效或已过首波抢兑期</span>`;
+        promoFeedback.innerHTML = `<span class="text-red-400">✕ 折扣碼無效或已過首波搶兌期</span>`;
       }
       recalcPrices();
     });
@@ -501,7 +501,7 @@ function initCheckoutFlow() {
     sumBasePrice.textContent = `NT$ ${basePrice.toLocaleString()}`;
     sumDiscount.textContent = discountAmount > 0 ? `- NT$ ${discountAmount.toLocaleString()}` : 'NT$ 0';
     sumTotal.textContent = `NT$ ${finalTotal.toLocaleString()}`;
-    checkoutPayBtnText.textContent = `确认刷卡支付 NT$ ${finalTotal.toLocaleString()}`;
+    checkoutPayBtnText.textContent = `確認刷卡支付 NT$ ${finalTotal.toLocaleString()}`;
   }
 
   // 3D Card Real-Time Syncing
@@ -573,11 +573,11 @@ function initCheckoutFlow() {
       inputCardCvv.value = '888';
       cardCvvDisplay.textContent = '•••';
 
-      document.getElementById('checkout-name').value = '陈先生';
+      document.getElementById('checkout-name').value = '陳先生';
       document.getElementById('checkout-phone').value = '0912-345-678';
-      document.getElementById('checkout-address').value = '台北市信义区松仁路 100 号 18 楼';
+      document.getElementById('checkout-address').value = '台北市信義區松仁路 100 號 18 樓';
       
-      showToast('✨ 已为您自动填入安全合规演示数据！');
+      showToast('✨ 已為您自動填入安全展示資料！');
     });
   }
 
@@ -592,7 +592,7 @@ function initCheckoutFlow() {
       const cardNum = inputCardNum.value.trim();
 
       if (!name || !phone || !address || cardNum.length < 15) {
-        alert('请完整填写收件人信息与正确卡号！');
+        alert('請完整填寫收件人資訊與正確卡號！');
         return;
       }
 
@@ -605,7 +605,7 @@ function initCheckoutFlow() {
 
         // Populate receipt
         const randId = 'AURA-' + Math.floor(100000 + Math.random() * 900000);
-        const editionName = editionSelect.value === 'pro' ? 'AURA Master 1000 旗舰版' : 'AURA Master 1000 标准版';
+        const editionName = editionSelect.value === 'pro' ? 'AURA Master 1000 旗艦版' : 'AURA Master 1000 標準版';
         const chosenColor = colorSelect.value;
         const totalPaid = sumTotal.textContent;
 
@@ -625,13 +625,13 @@ function initCheckoutFlow() {
   if (closeReceiptBtn) {
     closeReceiptBtn.addEventListener('click', () => {
       receiptModal.classList.remove('active');
-      showToast('🎉 恭喜订购成功！我们将在 24 小时内为您出货。');
+      showToast('🎉 恭喜訂購成功！我們將在 24 小時內為您出貨。');
     });
   }
 }
 
 /* ==========================================================================
-   6. UTILITIES: TOAST & SMOOTH SCROLL
+   6. UTILITIES: TOAST & SMOOTH SCROLL (通知與平滑捲動)
    ========================================================================== */
 function showToast(message) {
   let toast = document.getElementById('aura-toast');
