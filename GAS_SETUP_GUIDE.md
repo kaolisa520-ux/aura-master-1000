@@ -82,3 +82,63 @@
    - 確認姓名、電話、**電子信箱 (Email)**、地址與卡號齊全。
    - 點選「確認刷卡支付」。
    - 打開您的 Google 試算表 `Orders` 分頁，您將看到剛剛建立的訂單已被自動寫入，並且您填寫的 Email 信箱將同步收到一封精美的官方確認信！
+
+---
+
+## 步驟七：設定 LINE 即時訂單推播通知（老闆專屬）
+
+每當顧客於前台完成訂購，系統除了寫入 Google 試算表、自動寄出顧客 Email 確認信之外，還會**即時推播訂單明細到您的 LINE 手機上**！
+
+我們推薦使用官方長期穩定的 **LINE Messaging API (LINE 機器人推播)**，設定流程非常簡單（完全免費）：
+
+### 1. 取得 LINE Messaging API 憑證 (推薦，5 分鐘完成)
+
+1. 開啟 [LINE Developers Console 控制台](https://developers.line.biz/console/)，使用您平常的 LINE 帳號登入。
+2. 點選 **「Create a new provider」**（建立提供者），名稱可自訂（如：`AURA Official`）。
+3. 點選 **「Create a Messaging API channel」**：
+   - **Channel name**：`AURA 訂單通知秘書`
+   - **Channel description**：`即時訂單成立推播通知`
+   - **Category**：選擇任何類別（如：`E-Commerce`）
+   - 勾選同意條款後，點擊 **「Create」** 建立。
+4. **取得您的 LINE User ID**：
+   - 點選切換到 **「Basic settings」** 分頁。
+   - 滑動到最底部，複製 **「Your user ID」**（開頭為 `U`，長度約 33 碼）。
+5. **取得 Channel Access Token**：
+   - 點選切換到 **「Messaging API」** 分頁。
+   - 滑動至下方 **Channel access token (long-lived)** 區塊，點選 **「Issue」**（發行）並複製整段 Token。
+6. **加入機器人為好友（務必執行！）**：
+   - 在 **「Messaging API」** 分頁上方會看到一個 **QR Code**。
+   - 用您手機的 LINE 掃描該 QR Code，將您的專屬機器人 **加為好友**（如此它才能傳訊息給您）。
+
+---
+
+### 2. 將金鑰貼入 Apps Script 的 `Code.gs`
+
+1. 回到 Google 試算表的 **Apps Script** 編輯器。
+2. 在 [Code.gs](file:///c:/Users/User/OneDrive/文件/Antigravity/耳機/backend/Code.gs) 最上方的第 26~27 行：
+   ```javascript
+   const LINE_CHANNEL_ACCESS_TOKEN = '貼上剛才發行的 Channel access token';
+   const LINE_USER_ID = '貼上剛才複製的 User ID (U開頭)';
+   ```
+3. 按下 `Ctrl + S` 儲存。
+
+---
+
+### 3. 一鍵測試 LINE 推播
+
+1. 在 Apps Script 上方工具列的函式下拉選單中，選擇 **`testLineNotification`**。
+2. 點擊 **「執行」 (Run)**。
+3. 您的手機 LINE 將立刻跳出格式精美的 AURA 訂單測試通知！包含訂單編號、顧客姓名、方案、金額、配送地址等資訊。
+
+---
+
+### 4. 關鍵步驟：重新發布 Web App 新版本
+
+> [!IMPORTANT]
+> **每次修改 `Code.gs` 後，必須「重新發布新版本」**，否則線上結帳頁面呼叫的依然是舊版後端，不會觸發 LINE 通知！
+
+1. 在 Apps Script 編輯器右上角，點選 **「部署」 (Deploy)** > **「管理部署作業」 (Manage deployments)**。
+2. 在左側清單點選您已部署的作業，點選右上角的 **鉛筆圖示 ✏️ (編輯)**。
+3. 在「版本」下拉選單中，選擇 **「新版本」 (New version)**。
+4. 點選右下角 **「部署」 (Deploy)** > **「完成」**。
+5. 現在回到您的銷售網站進行真實/測試下單，您的 LINE 就會隨時收到即時推播通知囉！

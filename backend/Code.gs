@@ -15,9 +15,19 @@
  * 5. 複製生成的「網頁應用程式網址」，填入前端 app.js 中的 GAS_ENDPOINT_URL 變數。
  */
 
-// 工作表名稱設定
+// ============================================================================
+// 工作表與推播通知設定
+// ============================================================================
 const SHEET_ORDERS = 'Orders';
 const SHEET_REVIEWS = 'Reviews';
+
+// LINE 即時推播通知設定 (雙軌支援：LINE Messaging API 或 LINE Notify)
+// 方式一：LINE Messaging API (官方機器人，長期穩定推薦)
+const LINE_CHANNEL_ACCESS_TOKEN = ''; // 請貼入 Channel access token (long-lived)
+const LINE_USER_ID = '';              // 請貼入您的 LINE User ID (格式為 U 開頭之 33 碼字串)
+
+// 方式二：LINE Notify 權杖 (若您仍持有有效之 Notify Token 可直接貼入，使用方式一則此處留空)
+const LINE_NOTIFY_TOKEN = '';
 
 /**
  * 初始化試算表結構與標題列
@@ -208,7 +218,7 @@ function handleCreateOrder(data) {
 
   sheet.appendRow(row);
 
-  // 如果顧客有填寫 Email，自動透過 Gmail 發送訂單確認信
+  // 1. 如果顧客有填寫 Email，自動透過 Gmail 發送訂單確認信
   if (recipientEmail && recipientEmail.indexOf('@') > 0) {
     try {
       sendOrderConfirmationEmail({
@@ -223,6 +233,26 @@ function handleCreateOrder(data) {
       });
     } catch (mailErr) {
       Logger.log('郵件發送失敗（不影響訂單寫入）：' + mailErr.toString());
+    }
+  }
+
+  // 2. 自動透過 LINE 即時推播新訂單通知給老闆/賣家手機
+  if (LINE_CHANNEL_ACCESS_TOKEN || LINE_NOTIFY_TOKEN) {
+    try {
+      sendLineNotification({
+        orderId: orderId,
+        createdAt: createdAt,
+        name: recipientName,
+        phone: recipientPhone,
+        email: recipientEmail,
+        edition: edition,
+        color: color,
+        engraving: engraving,
+        totalAmount: totalAmount,
+        address: recipientAddress
+      });
+    } catch (lineErr) {
+      Logger.log('LINE 通知發送失敗（不影響訂單寫入）：' + lineErr.toString());
     }
   }
 
@@ -387,6 +417,91 @@ function sendOrderConfirmationEmail(order) {
     htmlBody: htmlBody,
     name: 'AURA Acoustics 官方旗艦店'
   });
+}
+
+/**
+ * 測試 LINE 即時推播通知 (供在 Apps Script 編輯器中點選執行查驗)
+ */
+function testLineNotification() {
+  if (!LINE_CHANNEL_ACCESS_TOKEN && !LINE_NOTIFY_TOKEN) {
+    Logger.log('❌ 請先在 Code.gs 最上方設定 LINE_CHANNEL_ACCESS_TOKEN 或 LINE_NOTIFY_TOKEN！');
+    return;
+  }
+  sendLineNotification({
+    orderId: '#AURA-' + Utilities.formatDate(new Date(), 'GMT+8', 'yyyyMMdd') + '-LINE',
+    createdAt: Utilities.formatDate(new Date(), 'GMT+8', 'yyyy/MM/dd HH:mm:ss'),
+    name: '測試買家 (陳偉廷)',
+    phone: '0912-345-678',
+    email: 'aura.vip@example.com',
+    edition: 'AURA 1000 高級旗艦版 (NT$ 15,000)',
+    color: '極光月灰 (Platinum Stone)',
+    engraving: 'AURA-2026',
+    totalAmount: 15000,
+    address: '台北市信義區松仁路 100 號 18 樓'
+  });
+  Logger.log('✅ LINE 測試推播已發送！請檢查您的手機 LINE 訊息。');
+}
+
+/**
+ * 發送 LINE 即時訂單通知至賣家手機
+ */
+function sendLineNotification(order) {
+  const messageText = 
+    `🎉【AURA Acoustics】新訂單成立！\n` +
+    `━━━━━━━━━━━━━━━\n` +
+    `🔖 訂單編號：${order.orderId}\n` +
+    `⏰ 下單時間：${order.createdAt}\n` +
+    `👤 顧客姓名：${order.name}\n` +
+    `📱 聯絡手機：${order.phone}\n` +
+    `✉️ 電子信箱：${order.email || '未填寫'}\n` +
+    `🎧 購買方案：${order.edition}\n` +
+    `🎨 外觀配色：${order.color}\n` +
+    `✍️ 客製雷雕：${order.engraving}\n` +
+    `💰 實付總額：NT$ ${Number(order.totalAmount).toLocaleString()} 元\n` +
+    `📍 配送地址：${order.address}\n` +
+    `━━━━━━━━━━━━━━━\n` +
+    `📦 請至 Google 試算表確認款項並安排出貨！`;
+
+  // 方式一：LINE Messaging API (官方機器人)
+  if (LINE_CHANNEL_ACCESS_TOKEN && LINE_USER_ID) {
+    const url = 'https://api.line.me/v2/bot/message/push';
+    const payload = {
+      to: LINE_USER_ID,
+      messages: [
+        {
+          type: 'text',
+          text: messageText
+        }
+      ]
+    };
+    const options = {
+      method: 'post',
+      contentType: 'application/json',
+      headers: {
+        'Authorization': 'Bearer ' + LINE_CHANNEL_ACCESS_TOKEN
+      },
+      payload: JSON.stringify(payload),
+      muteHttpExceptions: true
+    };
+    const response = UrlFetchApp.fetch(url, options);
+    Logger.log('LINE Messaging API 回應：' + response.getContentText());
+  } 
+  // 方式二：LINE Notify 權杖
+  else if (LINE_NOTIFY_TOKEN) {
+    const url = 'https://notify-api.line.me/api/notify';
+    const options = {
+      method: 'post',
+      headers: {
+        'Authorization': 'Bearer ' + LINE_NOTIFY_TOKEN
+      },
+      payload: {
+        message: '\n' + messageText
+      },
+      muteHttpExceptions: true
+    };
+    const response = UrlFetchApp.fetch(url, options);
+    Logger.log('LINE Notify 回應：' + response.getContentText());
+  }
 }
 
 /**
