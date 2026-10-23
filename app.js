@@ -7,7 +7,7 @@
 // 請在部署 Google Apps Script Web App 後，將網址貼入下方引號中
 // 例如：const GAS_ENDPOINT_URL = 'https://script.google.com/macros/s/AKfycbx.../exec';
 // ============================================================================
-const GAS_ENDPOINT_URL = '';
+const GAS_ENDPOINT_URL = 'https://script.google.com/macros/s/AKfycbzJvtYnMd0j8iO_8bwI_5zZ5vjluSknNQNsVfA7vOlSfn1_G6DN0Y7ftiwdAETAUcnG/exec';
 
 document.addEventListener('DOMContentLoaded', () => {
   initGallery();
