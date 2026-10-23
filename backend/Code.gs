@@ -23,8 +23,8 @@ const SHEET_REVIEWS = 'Reviews';
 
 // LINE 即時推播通知設定 (雙軌支援：LINE Messaging API 或 LINE Notify)
 // 方式一：LINE Messaging API (官方機器人，長期穩定推薦)
-const LINE_CHANNEL_ACCESS_TOKEN = ''; // 請貼入 Channel access token (long-lived)
-const LINE_USER_ID = '';              // 請貼入您的 LINE User ID (格式為 U 開頭之 33 碼字串)
+const LINE_CHANNEL_ACCESS_TOKEN = 'd20G8qjzLh5LrcewiIGmky4f1G7j7tIhI7biQAkM37QsalTjOT3To+BrhGiicJca3SxN0YX1D+pJ/kkaHuGGnBoHW1pNA/aap/KDWVrAisvVdJWlh0EyJVU7yZ9zn33lmylGqbGeVGpDfxEC/0cYagdB04t89/1O/w1cDnyilFU=';
+const LINE_USER_ID = 'Ua735fb0ef00a83eb3e176b580133c706';
 
 // 方式二：LINE Notify 權杖 (若您仍持有有效之 Notify Token 可直接貼入，使用方式一則此處留空)
 const LINE_NOTIFY_TOKEN = '';
