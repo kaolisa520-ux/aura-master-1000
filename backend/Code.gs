@@ -322,13 +322,34 @@ function handleGetReviews() {
 }
 
 /**
+ * 測試發送官方訂單確認信 (供在 Apps Script 編輯器中執行以完成 Gmail 授權)
+ */
+function testEmailNotification() {
+  const userEmail = Session.getActiveUser().getEmail();
+  const targetEmail = userEmail || 'your_email@example.com';
+  
+  sendOrderConfirmationEmail({
+    email: targetEmail,
+    name: '貴賓測試員',
+    orderId: '#AURA-' + Utilities.formatDate(new Date(), 'GMT+8', 'yyyyMMdd') + '-TEST',
+    edition: 'AURA 1000 高級旗艦版 (NT$ 15,000)',
+    color: '極光月灰 (Platinum Stone)',
+    engraving: 'AURA-2026',
+    totalAmount: 15000,
+    address: '台北市信義區松仁路 100 號 18 樓'
+  });
+  
+  Logger.log('✅ 測試確認信已成功寄送至：' + targetEmail + '，請至該信箱收信查驗！');
+}
+
+/**
  * 發送官方電子訂單確認信 (Gmail HTML Template)
  */
 function sendOrderConfirmationEmail(order) {
   const subject = `【AURA Acoustics】官方訂單確認通知 (${order.orderId})`;
   
   const htmlBody = `
-    <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #0b0d11; color: #f3f4f6; padding: 32px 20px; max-width: 600px; margin: 0 auto; border-radius: 16px; border: 1px solid #c2a783;">
+    <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #0b0d11; color: #f3f4f6; padding: 36px 20px; max-width: 600px; margin: 0 auto; border-radius: 16px; border: 1px solid #c2a783;">
       <div style="text-align: center; margin-bottom: 24px;">
         <h1 style="color: #c2a783; font-size: 26px; margin: 0; letter-spacing: 2px;">AURA MASTER 1000</h1>
         <p style="color: #9ca3af; font-size: 13px; margin-top: 6px;">一戴，世界自此靜止。</p>
@@ -363,7 +384,8 @@ function sendOrderConfirmationEmail(order) {
   MailApp.sendEmail({
     to: order.email,
     subject: subject,
-    htmlBody: htmlBody
+    htmlBody: htmlBody,
+    name: 'AURA Acoustics 官方旗艦店'
   });
 }
 
