@@ -1001,6 +1001,11 @@
             </div>
 
             <div>
+              <label class="block text-xs text-gray-400 mb-1">電子信箱 (Email · 接收訂單確認與電子發票)</label>
+              <input type="email" id="checkout-email" placeholder="aura.customer@example.com" class="w-full bg-[#1c202c] border border-white/10 rounded-xl px-3 py-2 text-sm text-white focus:border-[#c2a783] focus:outline-none" required>
+            </div>
+
+            <div>
               <label class="block text-xs text-gray-400 mb-1">宅配收件地址</label>
               <input type="text" id="checkout-address" placeholder="例如：台北市信義區信義路五段 7 號" class="w-full bg-[#1c202c] border border-white/10 rounded-xl px-3 py-2 text-sm text-white focus:border-[#c2a783] focus:outline-none" required>
             </div>
@@ -1171,6 +1176,10 @@
         <div class="flex justify-between">
           <span class="text-gray-400">收件人</span>
           <span id="receipt-recipient" class="text-white">陳先生 (0912-345-678)</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-gray-400">電子信箱</span>
+          <span id="receipt-email" class="text-white font-mono">chen@example.com</span>
         </div>
         <div class="flex justify-between">
           <span class="text-gray-400">收件地址</span>

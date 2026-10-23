@@ -2,6 +2,13 @@
  * AURA MASTER 1000 - LUXURY HEADPHONE LANDING PAGE INTERACTION CONTROLLER (繁體中文版)
  */
 
+// ============================================================================
+// GOOGLE APPS SCRIPT (GAS) 後端串接設定
+// 請在部署 Google Apps Script Web App 後，將網址貼入下方引號中
+// 例如：const GAS_ENDPOINT_URL = 'https://script.google.com/macros/s/AKfycbx.../exec';
+// ============================================================================
+const GAS_ENDPOINT_URL = '';
+
 document.addEventListener('DOMContentLoaded', () => {
   initGallery();
   initAudioSimulator();
@@ -269,6 +276,71 @@ function initReviewsSystem() {
   const starInputs = document.querySelectorAll('.star-rating-input');
   let selectedRating = 5;
 
+  // 頁面載入時，自動向 Google 試算表請求最新買家評價
+  fetchReviewsFromGAS();
+
+  function fetchReviewsFromGAS() {
+    if (!GAS_ENDPOINT_URL) return;
+    fetch(GAS_ENDPOINT_URL + '?action=getReviews')
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'success' && Array.isArray(data.reviews) && data.reviews.length > 0) {
+          reviewsContainer.innerHTML = '';
+          data.reviews.forEach(rev => {
+            const card = buildReviewCardNode(rev);
+            reviewsContainer.appendChild(card);
+          });
+          showToast(`✨ 已自 Google 試算表資料庫即時載入 ${data.reviews.length} 則最新評價！`);
+        }
+      })
+      .catch(err => {
+        console.warn('載入試算表評價失敗，維持預載評價：', err);
+      });
+  }
+
+  function buildReviewCardNode(rev) {
+    const card = document.createElement('div');
+    card.className = 'review-item-card glass-card rounded-2xl p-6 border border-white/5';
+    card.setAttribute('data-tags', 'sound anc comfort');
+
+    let starsHtml = '';
+    const ratingNum = Number(rev.rating) || 5;
+    for (let i = 0; i < 5; i++) {
+      starsHtml += `<svg class="w-4 h-4 ${i < ratingNum ? 'text-amber-400' : 'text-gray-600'}" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>`;
+    }
+
+    const firstChar = (rev.author_name || '客').slice(0, 1).toUpperCase();
+    const verifiedBadge = rev.is_verified ? '<span class="text-[10px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full font-medium">已驗證買家</span>' : '';
+    const dateStr = rev.created_at || '剛剛發布';
+
+    card.innerHTML = `
+      <div class="flex items-center justify-between mb-3">
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-[#c2a783] to-[#ebdcc8] text-[#0b0d11] font-bold flex items-center justify-center text-sm shadow">
+            ${firstChar}
+          </div>
+          <div>
+            <div class="flex items-center space-x-2">
+              <span class="font-medium text-white">${rev.author_name}</span>
+              ${verifiedBadge}
+            </div>
+            <p class="text-xs text-[#9ca3af]">購買規格：${rev.product_edition} · ${dateStr}</p>
+          </div>
+        </div>
+        <div class="flex">${starsHtml}</div>
+      </div>
+      <p class="text-sm text-gray-300 leading-relaxed">${rev.content}</p>
+      <div class="mt-4 pt-3 border-t border-white/5 flex items-center justify-between text-xs text-[#9ca3af]">
+        <span>實名認證評價</span>
+        <button class="hover:text-[#c2a783] flex items-center space-x-1" onclick="this.innerHTML='✓ 已贊同 (${(rev.helpful_count || 0) + 1})'">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"/></svg>
+          <span>覺得有幫助 (${rev.helpful_count || 0})</span>
+        </button>
+      </div>
+    `;
+    return card;
+  }
+
   // Star rating selector
   starInputs.forEach(star => {
     star.addEventListener('click', () => {
@@ -342,46 +414,47 @@ function initReviewsSystem() {
         return;
       }
 
-      // Generate new card
-      const newCard = document.createElement('div');
-      newCard.className = 'review-item-card glass-card rounded-2xl p-6 border border-[#c2a783]/30 bg-[#1c202c]/90 relative';
-      newCard.setAttribute('data-tags', 'sound anc comfort');
+      const reviewPayload = {
+        action: 'submitReview',
+        author_name: author,
+        rating: selectedRating,
+        product_edition: version,
+        content: content,
+        created_at: new Date().toLocaleString('zh-TW', { hour12: false })
+      };
 
-      let starsHtml = '';
-      for (let i = 0; i < 5; i++) {
-        starsHtml += `<svg class="w-4 h-4 ${i < selectedRating ? 'text-amber-400' : 'text-gray-600'}" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>`;
-      }
-
-      newCard.innerHTML = `
-        <div class="flex items-center justify-between mb-3">
-          <div class="flex items-center space-x-3">
-            <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-[#c2a783] to-[#ebdcc8] text-[#0b0d11] font-bold flex items-center justify-center text-sm shadow">
-              ${author.slice(0, 1).toUpperCase()}
-            </div>
-            <div>
-              <div class="flex items-center space-x-2">
-                <span class="font-medium text-white">${author}</span>
-                <span class="text-[10px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full font-medium">已驗證買家</span>
-              </div>
-              <p class="text-xs text-[#9ca3af]">購買規格：${version} · 剛剛發布</p>
-            </div>
-          </div>
-          <div class="flex">${starsHtml}</div>
-        </div>
-        <p class="text-sm text-gray-300 leading-relaxed">${content}</p>
-        <div class="mt-4 pt-3 border-t border-white/5 flex items-center justify-between text-xs text-[#9ca3af]">
-          <span>實名認證評價</span>
-          <button class="hover:text-[#c2a783] flex items-center space-x-1" onclick="this.innerHTML='✓ 已贊同 (1)'">
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"/></svg>
-            <span>覺得有幫助 (0)</span>
-          </button>
-        </div>
-      `;
+      // 產生前端即時卡片節點
+      const newCard = buildReviewCardNode({
+        author_name: author,
+        rating: selectedRating,
+        product_edition: version,
+        content: content,
+        created_at: '剛剛發布',
+        is_verified: true,
+        helpful_count: 0
+      });
+      newCard.classList.add('border-[#c2a783]/40', 'bg-[#1c202c]/95');
 
       reviewsContainer.insertBefore(newCard, reviewsContainer.firstChild);
       reviewModal.classList.remove('active');
       reviewForm.reset();
-      showToast('🎉 感謝您的真實評價！已成功展示在網站首頁。');
+
+      // 若有設定 GAS 網址，非同步發送至 Google 試算表資料庫
+      if (GAS_ENDPOINT_URL) {
+        fetch(GAS_ENDPOINT_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(reviewPayload)
+        }).then(() => {
+          showToast('🎉 評價已同步儲存至 Google 試算表後端資料庫！');
+        }).catch(err => {
+          console.warn('評價同步至試算表失敗：', err);
+          showToast('🎉 感謝您的評價！已展示於前台。');
+        });
+      } else {
+        showToast('🎉 感謝您的真實評價！已成功展示在網站首頁。');
+      }
     });
   }
 }
@@ -573,8 +646,9 @@ function initCheckoutFlow() {
       inputCardCvv.value = '888';
       cardCvvDisplay.textContent = '•••';
 
-      document.getElementById('checkout-name').value = '陳先生';
+      document.getElementById('checkout-name').value = '陳偉廷';
       document.getElementById('checkout-phone').value = '0912-345-678';
+      document.getElementById('checkout-email').value = 'chen.weiting@example.com';
       document.getElementById('checkout-address').value = '台北市信義區松仁路 100 號 18 樓';
       
       showToast('✨ 已為您自動填入安全展示資料！');
@@ -588,31 +662,80 @@ function initCheckoutFlow() {
 
       const name = document.getElementById('checkout-name').value.trim();
       const phone = document.getElementById('checkout-phone').value.trim();
+      const email = document.getElementById('checkout-email').value.trim();
       const address = document.getElementById('checkout-address').value.trim();
       const cardNum = inputCardNum.value.trim();
 
-      if (!name || !phone || !address || cardNum.length < 15) {
-        alert('請完整填寫收件人資訊與正確卡號！');
+      if (!name || !phone || !email || !address || cardNum.length < 15 || email.indexOf('@') === -1) {
+        alert('請完整填寫收件人姓名、電話、有效 Email 與正確卡號！');
         return;
       }
 
       // Show processing overlay
       processingOverlay.classList.remove('hidden');
 
+      const isPro = editionSelect.value === 'pro';
+      const randId = '#AURA-' + new Date().toISOString().slice(0, 10).replace(/-/g, '') + '-' + Math.floor(1000 + Math.random() * 9000);
+      const editionName = isPro ? 'AURA 1000 高級旗艦版' : 'AURA 1000 普通標準版';
+      const chosenColor = colorSelect.value;
+      const engravingText = (engravingCheck && engravingCheck.checked) ? (document.getElementById('engraving-text').value.trim() || '客製刻字') : '無';
+      const cleanCard = cardNum.replace(/\s+/g, '');
+      const cardLast4 = cleanCard.slice(-4);
+      const cardBrand = cardBrandIcon.textContent || 'VISA';
+      const cardHolder = inputCardHolder.value.trim().toUpperCase() || 'CHEN WEI-TING';
+      const promoCode = promoInput ? (promoInput.value.trim().toUpperCase() || '無') : '無';
+      const totalPaid = sumTotal.textContent;
+
+      // 打包完整對齊 Google 試算表 20 個欄位之訂單物件
+      const orderPayload = {
+        action: 'createOrder',
+        order_id: randId,
+        created_at: new Date().toLocaleString('zh-TW', { hour12: false }),
+        product_edition: editionName,
+        color: chosenColor,
+        engraving: engravingText,
+        recipient_name: name,
+        recipient_email: email,
+        recipient_phone: phone,
+        recipient_address: address,
+        promo_code: promoCode,
+        base_price: basePrice,
+        discount_amount: discountAmount,
+        shipping_fee: 0,
+        total_amount: Math.max(0, basePrice - discountAmount),
+        payment_method: '信用卡 (3D-Secure 認證)',
+        card_brand: cardBrand,
+        card_last4: cardLast4,
+        card_holder: cardHolder
+      };
+
+      // 若有填入 GAS 網址，非同步發送訂單至 Google 試算表並自動觸發 Email 發信
+      if (GAS_ENDPOINT_URL) {
+        fetch(GAS_ENDPOINT_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(orderPayload)
+        }).then(() => {
+          console.log('✅ 訂單已成功寫入 Google 試算表！');
+        }).catch(err => {
+          console.warn('寫入 Google 試算表發生異常：', err);
+        });
+      }
+
       setTimeout(() => {
         processingOverlay.classList.add('hidden');
         checkoutModal.classList.remove('active');
 
         // Populate receipt
-        const randId = 'AURA-' + Math.floor(100000 + Math.random() * 900000);
-        const editionName = editionSelect.value === 'pro' ? 'AURA Master 1000 旗艦版' : 'AURA Master 1000 標準版';
-        const chosenColor = colorSelect.value;
-        const totalPaid = sumTotal.textContent;
-
         document.getElementById('receipt-order-id').textContent = randId;
         document.getElementById('receipt-product-name').textContent = editionName;
         document.getElementById('receipt-color').textContent = chosenColor;
         document.getElementById('receipt-recipient').textContent = `${name} (${phone})`;
+        const receiptEmailEl = document.getElementById('receipt-email');
+        if (receiptEmailEl) {
+          receiptEmailEl.textContent = email;
+        }
         document.getElementById('receipt-address').textContent = address;
         document.getElementById('receipt-amount').textContent = totalPaid;
         document.getElementById('receipt-date').textContent = new Date().toLocaleString('zh-TW', { hour12: false });
